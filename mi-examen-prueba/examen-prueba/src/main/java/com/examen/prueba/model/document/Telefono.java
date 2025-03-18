@@ -31,12 +31,4 @@ public class Telefono implements Serializable {
     private String emailSoporte;
     private Boolean isIOS;
 
-    /*@CreatedBy
-    String createdBy;
-    @CreatedDate
-    protected LocalDateTime createdDate;
-    @LastModifiedBy
-    protected String lastModifiedBy;
-    @LastModifiedDate
-    protected LocalDateTime lastModifiedDate;*/
 }
