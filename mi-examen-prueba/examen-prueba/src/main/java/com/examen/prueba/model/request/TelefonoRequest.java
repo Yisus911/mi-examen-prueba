@@ -53,8 +53,7 @@ public class TelefonoRequest implements Serializable {
         return new Telefono(null, tel.nombre, tel.marca,
                 tel.modelo, tel.nombreCorto, tel.fechaCreacion,
                 tel.imei, tel.numeroCelular, tel.emailSoporte,
-                tel.isIOS//,
-                //null, null, null, null
+                tel.isIOS
         );
     }
 
