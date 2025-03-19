@@ -30,5 +30,4 @@ public class Telefono implements Serializable {
     private long numeroCelular;
     private String emailSoporte;
     private Boolean isIOS;
-
 }
