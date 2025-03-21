@@ -68,7 +68,7 @@
 		</dependency>
 
 		<!--Tracing-->
-		<!--<dependency>
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
@@ -83,7 +83,7 @@
 		<dependency>
 			<groupId>io.zipkin.reporter2</groupId>
 			<artifactId>zipkin-reporter-brave</artifactId>
-		</dependency>-->
+		</dependency>
 	</dependencies>
 
 	<build>
