@@ -26,6 +26,7 @@
         <module>api-gateway</module>
         <module>examen-prueba</module>
         <module>notification-service</module>
+        <module>spring-security</module>
     </modules>
 
     <dependencies>

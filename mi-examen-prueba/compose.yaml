@@ -1,4 +1,5 @@
 services:
+  ## Base de Datos para el proyecto examen-prueba
   mongodb:
     image: mongo
     container_name: mongo_db
@@ -10,6 +11,7 @@ services:
       - MONGO_INITDB_DATABASE=examenPrueba
       - MONGO_INITDB_ROOT_PASSWORD=examenPrueba130325
       - MONGO_INITDB_ROOT_USERNAME=root
+  ## Redis implementado en el proyecto examen-pruebas
   redis:
     image: redis:latest
     container_name: redis
@@ -18,7 +20,7 @@ services:
     volumes:
       - redis_data:/data
     command: [ "redis-server", "--save", "''", "--appendonly", "no" ]
-  ### Zookeeper
+  ## Zookeeper utilizado por kafka
   zookeeper:
     container_name: zookeeper
     image: confluentinc/cp-zookeeper:7.4.0
@@ -26,7 +28,7 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
 
-  ### Kafka
+  ### Kafka utilizado en el proyecto examen-prueba
   kafka:
     container_name: kafka
     image: confluentinc/cp-kafka:7.4.0
@@ -43,6 +45,72 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
 
+  ## Zipkin utilizado por resillence4j para el proyecto examen-prueba
+  zipkin:
+    container_name: zipkin
+    image: openzipkin/zipkin:2.24.2
+    ports:
+      - "9411:9411"
+  ## Prometheus utilizado por resillence4j para el proyecto examen-prueba
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus:v2.46.0
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./file/prometheus.yml:/etc/prometheus/prometheus.yaml
+  ## Grafana utilizado por resillence4j para el proyecto examen-prueba
+  grafana:
+    container_name: grafana
+    image: grafana/grafana-oss:10.0.3
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    links:
+      - prometheus
+    volumes:
+      - ./files/grafana:/var/lib/grafana
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_SECURITY_ADMIN_USER: admin
+    depends_on:
+      - prometheus
+  ### MySQL database for Security
+  db-token-jwt:
+    container_name: db-token-jwt
+    image: mysql:8.0.33
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ms_token
+      MYSQL_USER: token
+      MYSQL_PASSWORD: 150919
+      MYSQL_ROOT_PASSWORD: 150919
+    ports:
+      - 3306:3306
+    expose:
+      - 3306
+  vault:
+    image: hashicorp/vault:latest
+    container_name: vault
+    ports:
+      - "8200:8200"
+    restart: unless-stopped
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: "root"
+      VAULT_DEV_LISTEN_ADDRESS: "0.0.0.0:8200"
+    volumes:
+      - ./vault-data:/vault/file
+      - ./vault-config:/vault/config
+    cap_add:
+      - IPC_LOCK
+    networks:
+      - vault_network
+
 volumes:
   mongo: {}
   redis_data: {}
+
+networks:
+  vault_network:
