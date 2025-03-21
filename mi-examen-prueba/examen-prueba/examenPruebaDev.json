@@ -1,0 +1,8 @@
+{
+  "kafka.name.topic1": "telefono-topic",
+  "spring.data.mongodb.auto-index-creation": "true",
+  "spring.data.mongodb.host": "localhost",
+  "spring.data.mongodb.password": "examenPrueba130325",
+  "spring.data.mongodb.port": "27017",
+  "spring.data.mongodb.username": "root"
+}
