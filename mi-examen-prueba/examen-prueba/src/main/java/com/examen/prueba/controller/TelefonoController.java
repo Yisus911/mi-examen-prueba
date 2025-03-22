@@ -4,6 +4,7 @@ import com.examen.prueba.model.request.TelefonoRequest;
 import com.examen.prueba.model.response.TelefonoResponse;
 import com.examen.prueba.service.TelefonoService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -27,9 +28,17 @@ import static com.examen.prueba.utils.SHA256.toHexString;
 @RequestMapping("/api/telefonos")
 @RequiredArgsConstructor
 public class TelefonoController {
+    @Value("${propiedad.cambiante}")
+    private String propiedad;
 
     private final TelefonoService service;
     private static final String CLAVE = "MIEXAMENPRUEBA";
+
+    @GetMapping("/getPropiedad")
+    @ResponseStatus(HttpStatus.OK)
+    public String getPropiedad() {
+        return propiedad;
+    }
 
     @GetMapping("/getTodos")
     @ResponseStatus(HttpStatus.OK)
