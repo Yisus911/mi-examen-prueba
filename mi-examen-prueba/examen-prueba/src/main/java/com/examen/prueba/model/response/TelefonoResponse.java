@@ -2,9 +2,6 @@ package com.examen.prueba.model.response;
 
 import com.examen.prueba.model.document.Telefono;
 import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.io.Serializable;
 import java.util.Date;
 

@@ -1,24 +1,24 @@
 package com.examen.prueba;
 
-import static org.mockito.BDDMockito.given;
-import static org.assertj.core.api.Assertions.assertThat;
-
-import com.examen.prueba.config.kafka.KafkaProviderConfig;
-import com.examen.prueba.config.kafka.KafkaTopicConfig;
-import com.examen.prueba.config.redis.RedisCacheConfiguracion;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import com.examen.prueba.data.DataProvider;
 import com.examen.prueba.model.document.Telefono;
+import com.examen.prueba.model.request.TelefonoRequest;
+import com.examen.prueba.model.response.TelefonoResponse;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import com.examen.prueba.repository.TelefonoRepository;
 import com.examen.prueba.service.TelefonoService;
 import org.mockito.InjectMocks;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.TestPropertySource;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,118 +30,75 @@ class ExamenPruebaApplicationTests {
 	private TelefonoRepository repository;
 	@InjectMocks
 	private TelefonoService service;
-	@Autowired
-	private KafkaProviderConfig kafkaProviderConfig;
-	@Autowired
-	private KafkaTopicConfig kafkaTopicConfig;
-	@Autowired
-	private RedisCacheConfiguracion redisCacheConfiguracion;
 
 	@Test
-	void getTelefonoByImei() throws Exception {
-		//given
-		Telefono tel1 = new Telefono("123abc56789",
-				"Samsung S23 Ultra",
-				"Samsung",
-				"Galaxy S23 Ultra",
-				"S23 Ultra",
-				new Date(),
-				1234567890L,
-				4422648297L,
-				"jesuspc_905@hotmail.com",
-				true);
-		Telefono telefono = Telefono.builder()
-				.id("123abc56789")
-				.nombre("Samsung S23 Ultra")
-				.marca("Samsung")
-				.modelo("Galaxy S23 Ultra")
-				.nombreCorto("S23 Ultra")
-				.fechaCreacion(new Date())
-				.imei(1234567890L)
-				.numeroCelular(4422648297L)
-				.emailSoporte("jesuspc_905@hotmail.com")
-				.isIOS(true)
-				.build();
+	void testFindAll() throws Exception {
+		//Given
+		Pageable pagina = PageRequest.of(1, 2);
 		//When
-		given(repository.findByImei(1111L))
-				.willReturn(Optional.of(telefono));
-		var  tel = service.getTelefonoByImei(1111L);
-		//Then
+		when(repository.findAll()).thenReturn(DataProvider.getListaTelefonos());
+		List<TelefonoResponse> telefonos = repository.findAll().stream().map(TelefonoResponse::mapeo).toList();
 
-		assertThat(tel).isNotNull();
+		//Then
+		assertNotNull(telefonos);
+		assertFalse(telefonos.isEmpty());
+		assertTrue(telefonos.size() > 0);
 	}
 
 	@Test
-	void getTelefonoPorId() throws Exception {
-		//given
-		Telefono tel1 = new Telefono("123abc56789",
-				"Samsung S23 Ultra",
-				"Samsung",
-				"Galaxy S23 Ultra",
-				"S23 Ultra",
-				new Date(),
-				1234567890L,
-				4422648297L,
-				"jesuspc_905@hotmail.com",
-				true);
-		Telefono telefono = Telefono.builder()
-				.id("123abc56789")
-				.nombre("Samsung S23 Ultra")
-				.marca("Samsung")
-				.modelo("Galaxy S23 Ultra")
-				.nombreCorto("S23 Ultra")
-				.fechaCreacion(new Date())
-				.imei(1234567890L)
-				.numeroCelular(4422648297L)
-				.emailSoporte("jesuspc_905@hotmail.com")
-				.isIOS(true)
-				.build();
+	void testGetTelefonoPorId() throws Exception {
+		//Given
+		String id = "Abc123defghi456";
+
 		//When
-		given(repository.findById("123abc"))
-				.willReturn(Optional.of(telefono));
-		var  tel = service.getTelefonoPorId("123abc");
-		//Then
+		when(repository.findById(id)).thenReturn(Optional.of(DataProvider.getTelefono()));
+		TelefonoResponse telResp = service.getTelefonoPorId(id);
 
-		assertThat(tel).isNotNull();
+		//Then
+		assertNotNull(telResp);
+        assertEquals("123abc56789", telResp.id());
+		verify(repository).findById(anyString());
 	}
 
 	@Test
-	void getTodos() throws Exception {
-		//given
-		Pageable pagina = PageRequest.of(1, 3);
-		Telefono tel1 = new Telefono("123abc56789",
-				"Samsung S23 Ultra",
-				"Samsung",
-				"Galaxy S23 Ultra",
-				"S23 Ultra",
-				new Date(),
-				1234567890L,
-				4422648297L,
-				"jesuspc_905@hotmail.com",
-				true);
-		Telefono telefono = Telefono.builder()
-				.id("123abc56789")
-				.nombre("Samsung S23 Ultra")
-				.marca("Samsung")
-				.modelo("Galaxy S23 Ultra")
-				.nombreCorto("S23 Ultra")
-				.fechaCreacion(new Date())
-				.imei(1234567890L)
-				.numeroCelular(4422648297L)
-				.emailSoporte("jesuspc_905@hotmail.com")
-				.isIOS(true)
-				.build();
+	void testGetTelefonoByImei() throws Exception {
+		//Given
+		Long id = 1234567890L;
+
 		//When
-		given(repository.findAll())
-				.willReturn(List.of(telefono, tel1));
-		var telList = repository.findAll();
-		//Then
+		when(repository.findByImei(anyLong())).thenReturn(Optional.of(DataProvider.getTelefono()));
+		//Telefono telResp = repository.findByImei(id).orElseThrow(() -> new Exception("Teléfono no encontrado!"));
+		TelefonoResponse telResp = service.getTelefonoByImei(id);
 
-		assertThat(telList).isNotNull();
+		//Then
+		assertNotNull(telResp);
+		assertEquals(1234567890L, telResp.imei());
 	}
 
 	@Test
-	void contextLoads() {
+	void testGuardar(){
+		//Given
+		TelefonoRequest tel = DataProvider.crearNuevoTelefono();
+		//When
+		Telefono telefono = this.repository.save(TelefonoRequest.mapeo(tel));
+		//Then
+		verify(repository).save(any());
 	}
+
+	@Test
+	void testEliminar() throws Exception {
+		//Given
+		String id = "123456789";
+		//When
+		this.repository.deleteById(id);
+		//Telefono telefono = this.repository.save(TelefonoRequest.mapeo(tel));
+		//Then
+		ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+		verify(repository).deleteById(anyString());
+		verify(repository).deleteById(captor.capture());
+		assertEquals("123456789", captor.getValue());
+	}
+
+
 
 }
