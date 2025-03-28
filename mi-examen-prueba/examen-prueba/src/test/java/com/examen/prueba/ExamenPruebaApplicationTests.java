@@ -5,13 +5,14 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import com.examen.prueba.data.DataProvider;
-import com.examen.prueba.model.document.Telefono;
-import com.examen.prueba.model.request.TelefonoRequest;
-import com.examen.prueba.model.response.TelefonoResponse;
+import com.examen.prueba.persistence.document.Telefono;
+import com.examen.prueba.presentation.dto.TelefonoRequest;
+import com.examen.prueba.presentation.dto.TelefonoResponse;
+import com.examen.prueba.util.mapper.TelefonoMapper;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import com.examen.prueba.repository.TelefonoRepository;
+import com.examen.prueba.persistence.repository.TelefonoRepository;
 import com.examen.prueba.service.TelefonoService;
 import org.mockito.InjectMocks;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -37,7 +38,8 @@ class ExamenPruebaApplicationTests {
 		Pageable pagina = PageRequest.of(1, 2);
 		//When
 		when(repository.findAll()).thenReturn(DataProvider.getListaTelefonos());
-		List<TelefonoResponse> telefonos = repository.findAll().stream().map(TelefonoResponse::mapeo).toList();
+		List<TelefonoResponse> telefonos = repository.findAll().stream().map(
+				TelefonoMapper.mapper::telefonoToTelefonoResponse).toList();
 
 		//Then
 		assertNotNull(telefonos);
@@ -67,7 +69,6 @@ class ExamenPruebaApplicationTests {
 
 		//When
 		when(repository.findByImei(anyLong())).thenReturn(Optional.of(DataProvider.getTelefono()));
-		//Telefono telResp = repository.findByImei(id).orElseThrow(() -> new Exception("Teléfono no encontrado!"));
 		TelefonoResponse telResp = service.getTelefonoByImei(id);
 
 		//Then
@@ -80,7 +81,7 @@ class ExamenPruebaApplicationTests {
 		//Given
 		TelefonoRequest tel = DataProvider.crearNuevoTelefono();
 		//When
-		Telefono telefono = this.repository.save(TelefonoRequest.mapeo(tel));
+		Telefono telefono = this.repository.save(TelefonoMapper.mapper.telefonoRequestToTelefono(tel));
 		//Then
 		verify(repository).save(any());
 	}
@@ -91,14 +92,11 @@ class ExamenPruebaApplicationTests {
 		String id = "123456789";
 		//When
 		this.repository.deleteById(id);
-		//Telefono telefono = this.repository.save(TelefonoRequest.mapeo(tel));
 		//Then
 		ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
 		verify(repository).deleteById(anyString());
 		verify(repository).deleteById(captor.capture());
 		assertEquals("123456789", captor.getValue());
 	}
-
-
 
 }

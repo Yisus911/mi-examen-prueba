@@ -1,8 +1,7 @@
 package com.examen.prueba.data;
 
-import com.examen.prueba.model.document.Telefono;
-import com.examen.prueba.model.request.TelefonoRequest;
-import com.examen.prueba.model.response.TelefonoResponse;
+import com.examen.prueba.persistence.document.Telefono;
+import com.examen.prueba.presentation.dto.TelefonoRequest;
 
 import java.util.Date;
 import java.util.List;

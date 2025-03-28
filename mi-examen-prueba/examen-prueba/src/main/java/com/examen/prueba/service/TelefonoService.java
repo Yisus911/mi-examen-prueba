@@ -1,10 +1,11 @@
 package com.examen.prueba.service;
 
-import com.examen.prueba.model.document.Telefono;
-import com.examen.prueba.model.request.TelefonoRequest;
-import com.examen.prueba.model.response.TelefonoResponse;
-import com.examen.prueba.repository.TelefonoRepository;
-import com.examen.prueba.utils.JsonUtils;
+import com.examen.prueba.persistence.document.Telefono;
+import com.examen.prueba.presentation.dto.TelefonoRequest;
+import com.examen.prueba.presentation.dto.TelefonoResponse;
+import com.examen.prueba.persistence.repository.TelefonoRepository;
+import com.examen.prueba.util.JsonUtils;
+import com.examen.prueba.util.mapper.TelefonoMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -24,21 +25,19 @@ public class TelefonoService {
 
     @Cacheable(value = TELEFONO_CACHE)
     public Page<TelefonoResponse> getAll(Pageable pageable) {
-        return repository.findAll(pageable)
-                .map(TelefonoResponse::mapeo);
+        return repository.findAll(pageable).map(TelefonoMapper.mapper::telefonoToTelefonoResponse);
     }
 
     @Cacheable(value = TELEFONO_CACHE, key = "#id")
     public TelefonoResponse getTelefonoPorId(String id) throws Exception {
         Telefono registro = repository.findById(id).orElseThrow(() -> new Exception("Teléfono no encontrado!"));
-        return TelefonoResponse.mapeo(registro);
+        return TelefonoMapper.mapper.telefonoToTelefonoResponse(registro);
     }
 
     @CachePut(value = TELEFONO_CACHE, key = "#result.id()")
     public TelefonoResponse guardar(TelefonoRequest telefonoReq) {
-        Telefono telefono = TelefonoRequest.mapeo(telefonoReq);
-        Telefono registro = repository.save(telefono);
-        TelefonoResponse respuesta = TelefonoResponse.mapeo(registro);
+        Telefono telefono = repository.save(TelefonoMapper.mapper.telefonoRequestToTelefono(telefonoReq));
+        TelefonoResponse respuesta = TelefonoMapper.mapper.telefonoToTelefonoResponse(telefono);
 
         //Mensaje para kafka
         this.kafkaTemplate.send("telefono-topic", JsonUtils.toJson(respuesta));
@@ -55,19 +54,8 @@ public class TelefonoService {
 
     @CachePut(value = TELEFONO_CACHE, key = "#result.id()")
     public TelefonoResponse actualizar(String id, TelefonoRequest telefonoReq) {
-        Telefono telefono = Telefono.builder()
-                .id(id).nombre(telefonoReq.getNombre())
-                .marca(telefonoReq.getMarca())
-                .modelo(telefonoReq.getModelo())
-                .nombreCorto(telefonoReq.getNombreCorto())
-                .fechaCreacion(telefonoReq.getFechaCreacion())
-                .imei(telefonoReq.getImei())
-                .numeroCelular(telefonoReq.getNumeroCelular())
-                .emailSoporte(telefonoReq.getEmailSoporte())
-                .isIOS(telefonoReq.getIsIOS())
-                .build();
-        Telefono registro = repository.save(telefono);
-        TelefonoResponse reg = TelefonoResponse.mapeo(registro);
+        Telefono registro = repository.save(TelefonoMapper.mapper.telefonoRequestToTelefono(telefonoReq));
+        TelefonoResponse reg = TelefonoMapper.mapper.telefonoToTelefonoResponse(registro);
         this.kafkaTemplate.send("telefonoUpd-topic", JsonUtils.toJson(reg));
         return reg;
     }
@@ -76,7 +64,7 @@ public class TelefonoService {
     public TelefonoResponse getTelefonoByImei(Long imei) throws Exception {
         Thread.sleep(20 * 1000);
         Telefono registro = repository.findByImei(imei).orElseThrow(() -> new Exception("Teléfono no encontrado!"));
-        return TelefonoResponse.mapeo(registro);
+        return TelefonoMapper.mapper.telefonoToTelefonoResponse(registro);
     }
 
 }
