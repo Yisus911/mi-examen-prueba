@@ -1,11 +1,8 @@
 package com.examen.prueba.presentation.dto;
 
-import com.examen.prueba.persistence.document.Telefono;
-import lombok.Builder;
 import java.io.Serializable;
 import java.util.Date;
 
-@Builder
 public record TelefonoResponse(String id, String nombre, String marca,
                                String modelo, String nombreCorto,
                                Date fechaCreacion,

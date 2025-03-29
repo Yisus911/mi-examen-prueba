@@ -11,8 +11,6 @@ import java.util.Date;
 import jakarta.validation.Valid;
 
 @Data
-@Getter
-@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class TelefonoRequest implements Serializable {

@@ -4,6 +4,7 @@ import com.examen.prueba.persistence.document.Telefono;
 import com.examen.prueba.presentation.dto.TelefonoRequest;
 import com.examen.prueba.presentation.dto.TelefonoResponse;
 import com.examen.prueba.persistence.repository.TelefonoRepository;
+import com.examen.prueba.service.exception.TelefonoNoEncontradoException;
 import com.examen.prueba.util.JsonUtils;
 import com.examen.prueba.util.mapper.TelefonoMapper;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +31,7 @@ public class TelefonoService {
 
     @Cacheable(value = TELEFONO_CACHE, key = "#id")
     public TelefonoResponse getTelefonoPorId(String id) throws Exception {
-        Telefono registro = repository.findById(id).orElseThrow(() -> new Exception("Teléfono no encontrado!"));
+        Telefono registro = repository.findById(id).orElseThrow(() -> new TelefonoNoEncontradoException("Teléfono no encontrado!"));
         return TelefonoMapper.mapper.telefonoToTelefonoResponse(registro);
     }
 
@@ -63,7 +64,7 @@ public class TelefonoService {
     @Cacheable(value = TELEFONO_CACHE, key = "#imei")
     public TelefonoResponse getTelefonoByImei(Long imei) throws Exception {
         Thread.sleep(20 * 1000);
-        Telefono registro = repository.findByImei(imei).orElseThrow(() -> new Exception("Teléfono no encontrado!"));
+        Telefono registro = repository.findByImei(imei).orElseThrow(() -> new TelefonoNoEncontradoException("Teléfono no encontrado!"));
         return TelefonoMapper.mapper.telefonoToTelefonoResponse(registro);
     }
 
